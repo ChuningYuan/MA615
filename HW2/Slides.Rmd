@@ -1,8 +1,8 @@
 ---
-title: "Class Assignment: MPG tables and charts"
-author: "Chuning Yuan"
-date: "September 9, 2019"
-output: pdf_document
+title: "MPGSlides"
+author: "Teresa"
+date: "9/20/2019"
+output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +15,7 @@ library(magrittr)
 opts_chunk$set(echo = TRUE)
 ```
 
-# Class assignment:
+## Class assignment:
 
 Using the MPG dataset, which is available with the ggplot2 library, produce a document that includes the following elements: headers, text, tables, and plots.  
 
@@ -30,8 +30,8 @@ This example is flawed even though the code works.  Explain.
 And now that you know how to produce the table can you improve the code 
 by using an **apply** functional?
 
-
-```{r}
+## Table1
+```{r echo=FALSE}
 
 data(mpg)     ## load the data
 
@@ -55,7 +55,7 @@ hwy_mean <- round(hwy_mean, 2)
 
 tbl_1 <- cbind(class, cty_mean,hwy_mean)      ## form an array for the table
 
-kable(tbl_1, format = "latex", booktabs=TRUE, digits = 2,     ## call kable to make the table
+kable(tbl_1, format = "html", booktabs=TRUE, digits = 2,     ## call kable to make the table
       col.names = c("Class", "City", "Highway"), 
       caption = "Mean City and Highway MPG by Car Class" )      
 
@@ -70,8 +70,8 @@ kable(tbl_1, format = "latex", booktabs=TRUE, digits = 2,     ## call kable to m
 The next table is a bit tricky. 
 
 
-
-```{r}
+## Table2
+```{r echo=FALSE}
 
 ##  You probably want to get started with a little investigation. 
 ##  Using unique(mpg$year), you find out that there are only two years - 1999, 2008.
@@ -135,7 +135,6 @@ miles_hwy_08 <- round(miles_hwy_08, 2)
 miles_hwy_99 <- round(miles_hwy_99, 2)
 
 
-
 tbl_2 <- cbind(mod_cty_99[1:3], 
                miles_cty_99[1:3],
                mod_hwy_99[1:3],
@@ -151,7 +150,7 @@ colnames(tbl_2) <- c('Model', 'Milage',
                      "Model", "Milage"
                      )
 
-kable(tbl_2, digits = 2, format = "latex", booktabs=TRUE, ,caption = "Top 3 MPG Performing Cars: 1999, 2008") %>% kable_styling() %>%
+kable(tbl_2, digits = 2, format = "html",booktabs=TRUE, ,caption = "Top 3 MPG Performing Cars: 1999, 2008") %>% kable_styling() %>%
   add_header_above(c("City 1999"=2, 
                      "Highway 1999"=2,
                      "City 2008"=2,
@@ -161,9 +160,9 @@ kable(tbl_2, digits = 2, format = "latex", booktabs=TRUE, ,caption = "Top 3 MPG 
 
 
 
+## City MPG by Class of Car
 
-```{r}
-
+```{r echo=FALSE}
 
 
 
@@ -172,17 +171,20 @@ library(ggplot2)
 
 ggplot(mpg) +
  aes(x = displ, y = cty) +
- geom_point(aes(color=class),size=2) + geom_smooth() +
+ geom_point(aes(color=class),size=2) + geom_smooth(method = 'loess') +
  scale_color_hue() +
  theme_minimal(base_size = 16) +
  facet_wrap(vars(year)) + 
   labs(x = "Engine Displacement",y = "City Mileage" ,title = "City MPG by Class of Car: 1999, 2008")
  
- 
- 
+```
+
+## Highway MPG by Class of Car
+``` {r echo=FALSE}
+
  ggplot(mpg) +
  aes(x = displ, y = hwy) +
- geom_point(aes(color=class),size=2) + geom_smooth() +
+ geom_point(aes(color=class),size=2) + geom_smooth(method = 'loess') +
  scale_color_hue() +
  theme_minimal(base_size = 16) +
  facet_wrap(vars(year)) + 
@@ -194,9 +196,9 @@ ggplot(mpg) +
 
 ```
 
-Boxplots
+## Boxplot1
 
-```{r}
+```{r echo=FALSE}
 
 
 
@@ -205,6 +207,11 @@ ggplot(mpg) +
  geom_boxplot(fill = "#0c4c8a") +
  theme_minimal(base_size=16) +
   labs(x = "Car Class", y = "City Mileage", title = "City MPG by Class of Car: 1999, 2008")
+
+```
+
+## Boxplot2
+```{r echo=FALSE}
 
 
 ggplot(mpg) +
@@ -218,5 +225,3 @@ ggplot(mpg) +
 
 
 ```
-
-
