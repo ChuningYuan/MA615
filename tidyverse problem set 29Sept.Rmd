@@ -1,0 +1,243 @@
+---
+title: "Tidyverse Problem Set"
+author: "Chuning Yuan"
+date: "September 29, 2019"
+output: pdf_document
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyr)
+library(dplyr)
+library(gapminder)
+library(knitr)
+library(kableExtra)
+library(magrittr)
+library(ggplot2)
+library(AER)
+library(babynames)
+library(tokenizers)
+knitr::opts_chunk$set(echo = T)
+pacman::p_load("tidyverse","knitr","kableExtra","gapminder","magrittr")
+```
+
+The purpose of this problem set is to provide data contexts in which to exercise the capabilitiues of the tidyverse. While some questons require specific answers, other parts of the problems have been written to be purposely ambiguous, requiring you to think through the presentation details of your answer. 
+
+
+
+
+HOLD THE PRESSES!  
+As I was preparing to post these problems yesterday, I noticed that tidyr had been updata in the last few weeks. I was looking for more exercises on gather() and spread() -- which are always difficult to master.  And I found that they have been superceded!!  Why do I love working with R as the tidyversie is on a path of continuous improvement? Because the improvements come from developers who write things like this:
+
+
+_For some time, it’s been obvious that there is something fundamentally wrong with the design of spread() and gather(). Many people don’t find the names intuitive and find it hard to remember which direction corresponds to spreading and which to gathering. It also seems surprisingly hard to remember the arguments to these functions, meaning that many people (including me!) have to consult the documentation every time._  [Hadley Wickham, Pivot Vingette](https://cran.r-project.org/web/packages/tidyr/vignettes/pivot.html)
+
+
+So... before you do anymore tidyverse exercises,
+Read this [tidyr 1.0.0](https://www.tidyverse.org/articles/2019/09/tidyr-1-0-0/).
+
+Then go to the [tidyr cran page](https://cran.r-project.org/web/packages/tidyr/index.html) 
+and to the examples and exercies in the new vignettes.
+
+In your solutions to the problems below, if you need to use table reshaping functions from TidyR, be sure that you use pivot_longer(), and pivot_wider().
+
+
+
+### Problem 1
+
+Load the gapminder data from the gapminder package.
+
+How many continents are included in the data set?
+```{r}
+
+data <- gapminder
+number_cont <- data$continent %>% unique %>% length
+number_cont
+
+```
+How many countrys are included?  How many countries per continent?
+```{r}
+number_coun <- data$country %>% unique %>% length
+number_coun
+num_coun_per_cont <- data %>% group_by(continent) %>% summarise(country %>% unique %>% length)
+num_coun_per_cont
+```
+Using the gapminder data, produce a report showing the continents in the dataset, total population per continent, and GDP per capita.  Be sure that the table is properly labeled and suitable for inclusion in a printed report.
+```{r}
+
+
+Per <- data %>% group_by(continent) %>% summarise(Population = sum(pop)/1000000, GDP = sum(gdpPercap)/1000000)
+
+
+kable(cbind(Per), caption = "Total population and total GDP per continents", align = "c", booktab =T, longtable = F)
+
+
+```
+Produce a well-labeled table that summarizes GDP per capita for the countries in each continent,  contrasting the years 1952 and 2007.
+```{r}
+
+Summary_1952 <- data %>% filter(year == 1952)
+Summary_2007 <- data %>% filter(year == 2007)
+
+Per_1952 <- Summary_1952 %>% group_by(continent) %>% summarise(Total_GDP_thousand = sum(gdpPercap)/1000, Ave_GDP_thousand = mean(gdpPercap)/1000, Max_GDP_thousand = max(gdpPercap)/1000, Min_GDP_thousand = min(gdpPercap)/1000)
+
+Per_2007 <- Summary_2007 %>% group_by(continent) %>% summarise(Total_GDP_thousand = sum(gdpPercap)/1000, Ave_GDP_thousand = mean(gdpPercap)/1000, Max_GDP_thousand = max(gdpPercap)/1000, Min_GDP_thousand = min(gdpPercap)/1000)
+
+kable(cbind(Per_1952), caption = "Summary GDP per capita for the countries in  each continents in 1952", align = "c", booktab =T, longtable = F)
+kable(cbind(Per_2007), caption = "Summary GDP per capita for the countries in each continents in 2007", align = "c", booktab =T, longtable = F)
+
+```
+Product a plot that summarizes the same data as the table. There should be two plots per continent.
+```{r}
+Total_1952 <- data %>% filter(year==1952)
+Total_1952 <- Total_1952 %>% group_by(continent) %>% summarise(Total_GDP_thousand = sum(gdpPercap)/1000)
+Total_1952
+
+barplot(as.matrix(Total_1952[,2]),beside = T,legend.text = T,main = "Total GDP per capita for the countries in each continents in 1952",xlab = "Degree",ylab = "continents",names.arg = c("Africa","America","Asia","Europe","Oceania"),ylim = c(0,200))
+
+Total_2007 <- data %>% filter(year==2007)
+Total_2007 <- Total_2007 %>% group_by(continent) %>% summarise(Total_GDP_thousand = sum(gdpPercap)/1000)
+Total_2007
+
+barplot(as.matrix(Total_2007[,2]),beside = T,legend.text = T,main = "Total GDP per capita for the countries in each continents in 2007",xlab = "Degree",ylab = "continents",names.arg = c("Africa","America","Asia","Europe","Oceania"),ylim = c(0,800))
+
+
+
+```
+
+Which countries in the dataset have had periods of negative population growth?
+```{r}
+
+Asian_countries <- data %>% filter(continent == "Asia")
+
+#For Afghanistan:
+Afg <- Asian_countries[1:12,]
+plot(y=Afg$pop,x=Afg$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+```
+
+*There was a decrease from 1977 to 1982 in Afghanistan.*
+```{r}
+#For Cambodia:
+Cam <- Asian_countries[37:48,]
+plot(y=Cam$pop,x=Cam$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+```
+*There was a decrease from 1972 to 1977 in Cambodia.*
+```{r}
+#For Kuwait:
+Kuw <- Asian_countries[181:192,]
+plot(y=Kuw$pop,x=Kuw$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+```
+*There was a decrease from 1987 to 1992 in Kuwait.*
+```{r}
+#For Lebanon:
+Leb <- Asian_countries[193:204,]
+plot(y=Leb$pop,x=Leb$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+```
+*There was a decrease from 1977 to 1987 in Lebanon.*
+```{r}
+#For West Bank and Gaza:
+WBG <- Asian_countries[373:384,]
+plot(y=WBG$pop,x=WBG$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+
+
+```
+*There was a decrease from 1967 to 1972 in Wesr Bank and Gaza.*
+Which countries in the dataset have had the highest rate of growth in per capita GDP?
+```{r}
+Highest_rate = Summary_1952 %>% mutate(rate = (Summary_2007$gdpPercap-Summary_1952$gdpPercap)/Summary_1952$gdpPercap)
+Highest_rate = Highest_rate %>% filter(rate == max(rate))
+Highest_rate
+
+
+```
+*The highest rate of growth country in per capita GDP is Equatorial Guinea with 375.6431%.*
+Illustrate your answer with a table or plot.
+
+\newpage
+
+### Problem 2
+
+The data for Problem 2 is the Fertility data in the AER package.  This data is from the 1980 US Census and is comprised of date on married women aged 21-35 with two or more children.  The data report the gender of each woman's first and second child, the woman's race, age, number of weeks worked in 1979, and whether the woman had more than two children.
+
+
+There are four possible gender combinations for the first two Children.  Product a plot the contracts the frequency of these four combinations. Are the frequencies different for women in their 20s and wemen who are older than 29?
+```{r}
+
+```
+Produce a plot that contrasts the frequency of having more than two children by race and ethnicity.  
+```{r}
+
+
+```
+### Problem 3
+
+Use the mtcars and mpg datasets.  
+How many times does the letter "e" occur in mtcars rownames?
+```{r}
+count_e = sum(str_count(rownames((mtcars),"e")))
+count_e
+```
+ *There are 381 cars whose names contain "e".*
+
+How many cars in mtcars have the brand Merc?
+```{r}
+Merc = sum(str_detect(rownames(mtcars),"Merc"))
+Merc
+```
+*There are 7 cars in mtcars have the brand Merc.*
+
+How many cars in mpg have the brand("manufacturer" in mpg) Merc?
+```{r}
+
+manu = sum(str_detect(mpg$manufacturer,"merc"))
+manu
+```
+*There are 4 cars in mpg have the brand Merc. 
+
+Contrast the mileage data for Merc cars as reported in mtcars and mpg.  Use tables, plots, and a short explaination.
+```{r}
+
+MPG_1 = mpg %>% filter(manufacturer == "mercury")
+MTCARS_1 = mtcars[8:14,]
+NAME_mtcars = row.names(MTCARS_1)
+tbl_mtcars = cbind(NAME_mtcars, MTCARS_1$mpg)
+tbl_mpg = cbind(MPG_1$manufacturer, MPG_1$cty, MPG_1$hwy)
+
+kable(tbl_mtcars, digits = 2, align = "c", booktabs=TRUE, ,caption = "Mileage data for Merc cars in mtcars",col.names = c("manufacturer", "mpg" ))
+
+kable(tbl_mpg, digits = 2, align = "c",  booktabs=TRUE, ,caption = "Mileage data for Merc cars in mpg", col.names = c("manufacturer",  "cty" ,"hwy")) 
+
+
+```
+
+### Problem 4
+
+Install the babynames package.
+
+Draw a sample of 500,000 rows from the babynames data
+```{r}
+
+```
+Produce a tabble that displays the five most popular boy names and girl names
+in the years 1880,1920, 1960, 2000.
+```{r}
+
+```
+What names overlap boys and girls?
+```{r}
+
+```
+What names were used in the 19th century but have not been used in the 21sth century?
+```{r}
+
+```
+Produce a chart that shows the relative frequency of the names "Donald", "Hilary", "Hillary", "Joe", "Barrack",  over the years 1880 through 2017.
+```{r}
+
+
+```
+
+
+
+
