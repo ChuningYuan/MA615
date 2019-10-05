@@ -113,32 +113,32 @@ Asian_countries <- data %>% filter(continent == "Asia")
 
 #For Afghanistan:
 Afg <- Asian_countries[1:12,]
-plot(y=Afg$pop,x=Afg$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+plot(y=Afg$pop,x=Afg$year,type = "o",xlab = "years" ,ylab = "population", main = "Total population in Afghanistan from 1952 to 2007")
 ```
 
 *There was a decrease from 1977 to 1982 in Afghanistan.*
 ```{r}
 #For Cambodia:
 Cam <- Asian_countries[37:48,]
-plot(y=Cam$pop,x=Cam$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+plot(y=Cam$pop,x=Cam$year,type = "o",xlab = "years" ,ylab = "population", main = "Total population in Afghanistan from 1952 to 2007")
 ```
 *There was a decrease from 1972 to 1977 in Cambodia.*
 ```{r}
 #For Kuwait:
 Kuw <- Asian_countries[181:192,]
-plot(y=Kuw$pop,x=Kuw$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+plot(y=Kuw$pop,x=Kuw$year,type = "o",xlab = "years" ,ylab = "population", main = "Total population in Afghanistan from 1952 to 2007")
 ```
 *There was a decrease from 1987 to 1992 in Kuwait.*
 ```{r}
 #For Lebanon:
 Leb <- Asian_countries[193:204,]
-plot(y=Leb$pop,x=Leb$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+plot(y=Leb$pop,x=Leb$year,type = "o",xlab = "years" ,ylab = "population", main = "Total population in Afghanistan from 1952 to 2007")
 ```
 *There was a decrease from 1977 to 1987 in Lebanon.*
 ```{r}
 #For West Bank and Gaza:
 WBG <- Asian_countries[373:384,]
-plot(y=WBG$pop,x=WBG$year,type = "o",xlab = "years" ,ylab = "pop", main = "Total population in Afghanistan from 1952 to 2007")
+plot(y=WBG$pop,x=WBG$year,type = "o",xlab = "years" ,ylab = "population", main = "Total population in Afghanistan from 1952 to 2007")
 
 
 ```
@@ -161,15 +161,79 @@ Illustrate your answer with a table or plot.
 The data for Problem 2 is the Fertility data in the AER package.  This data is from the 1980 US Census and is comprised of date on married women aged 21-35 with two or more children.  The data report the gender of each woman's first and second child, the woman's race, age, number of weeks worked in 1979, and whether the woman had more than two children.
 
 
-There are four possible gender combinations for the first two Children.  Product a plot the contracts the frequency of these four combinations. Are the frequencies different for women in their 20s and wemen who are older than 29?
+There are four possible gender combinations for the first two Children.  Product a plot the contracts the frequency of these four combinations. 
+```{r}
+data("Fertility")
+MM <- Fertility %>% filter(gender1=="male"& gender2=="male")
+MF <- Fertility %>% filter(gender1=="male" & gender2=="female")
+FF <- Fertility %>% filter(gender1=="female" & gender2=="female")
+FM <- Fertility %>% filter(gender1=="female" & gender2=="male")
+
+slices <- c(67799, 63185,60946,62724)
+lbls <- c("MM","MF","FF","FM")
+pct <- round(slices/sum(slices),3)
+lbls <- paste(lbls,pct)
+lbls <- paste(lbls,"%",sep = "")
+pie(slices,labels = lbls,col = rainbow(length(lbls)),
+    main = "Frequency of four combinations")
+```
+
+
+Are the frequencies different for women in their 20s and wemen who are older than 29?
 ```{r}
 
+Fertility_1 <- Fertility %>% filter(age<30)
+Fertility_2 <- Fertility %>% filter(age>29)
+MM_20s <- Fertility_1 %>% filter(gender1=="male"& gender2=="male")
+MF_20s <- Fertility_1 %>% filter(gender1=="male" & gender2=="female")
+FF_20s <- Fertility_1 %>% filter(gender1=="female" & gender2=="female")
+FM_20s <- Fertility_1 %>% filter(gender1=="female" & gender2=="male")
+
+MM_30 <- Fertility_2 %>% filter(gender1=="male"& gender2=="male")
+MF_30 <- Fertility_2 %>% filter(gender1=="male" & gender2=="female")
+FF_30 <- Fertility_2 %>% filter(gender1=="female" & gender2=="female")
+FM_30 <- Fertility_2 %>% filter(gender1=="female" & gender2=="male")
+
+slices <- c(24505, 22653,22183,22508)
+lbls <- c("MM_20s","MF_20s","FF_20s","FM_20s")
+pct <- round(slices/sum(slices),3)
+lbls <- paste(lbls,pct)
+lbls <- paste(lbls,"%",sep = "")
+pie(slices,labels = lbls,col = rainbow(length(lbls)),
+    main = "Frequency of four combinations with age under 30")
+
+slices <- c(43294, 43294,38763,40216)
+lbls <- c("MM_30","MF_30","FF_30","FM_30")
+pct <- round(slices/sum(slices),3)
+lbls <- paste(lbls,pct)
+lbls <- paste(lbls,"%",sep = "")
+pie(slices,labels = lbls,col = rainbow(length(lbls)),
+    main = "Frequency of four combinations with age over 30")
+    
 ```
 Produce a plot that contrasts the frequency of having more than two children by race and ethnicity.  
 ```{r}
 
 
+New_Fertility <- Fertility %>% filter(morekids == "yes")
+
+Afam <- New_Fertility %>% filter(afam == "yes" & hispanic == "no" & other == "no")
+
+Hisp <- New_Fertility %>% filter(afam == "no" & hispanic == "yes" & other == "no")
+
+Other <- New_Fertility %>% filter(afam == "no" & hispanic == "no" & other == "yes")
+
+slices <- c(5933, 5555,2581)
+lbls <- c("Afam","Hisp","Other")
+pct <- round(slices/sum(slices),3)
+lbls <- paste(lbls,pct)
+lbls <- paste(lbls,"%",sep = "")
+pie(slices,labels = lbls,col = rainbow(length(lbls)),
+    main = "Percentage of race and ethnicity")
+
 ```
+
+
 ### Problem 3
 
 Use the mtcars and mpg datasets.  
@@ -217,23 +281,43 @@ Install the babynames package.
 
 Draw a sample of 500,000 rows from the babynames data
 ```{r}
-
+data = babynames
+subset <- sample(1:1924655,500000,replace = F)
+subset <- babynames[subset,]
+subset
 ```
-Produce a tabble that displays the five most popular boy names and girl names
+Produce a table that displays the five most popular boy names and girl names
 in the years 1880,1920, 1960, 2000.
-```{r}
 
-```
 What names overlap boys and girls?
 ```{r}
-
+names = subset %>% group_by(name) %>% summarise(lap = length(sex)) %>% filter(lap>1)
+names
 ```
+*There are  51367 names that are overlapped.*
+
 What names were used in the 19th century but have not been used in the 21sth century?
 ```{r}
 
+names_19 <- subset %>% filter(year<1900)
+names_21 <- subset %>% filter(year>1999)
+names_19 <- names_19 %>% count(name)
+names_21 <- names_21 %>% count(name)
+name_dif <- subset(names_19, !(name %in% names_21))
+
 ```
+
 Produce a chart that shows the relative frequency of the names "Donald", "Hilary", "Hillary", "Joe", "Barrack",  over the years 1880 through 2017.
 ```{r}
+
+Frm_1880_2017 = subset %>% filter(year >1879 & year <2018) 
+Name_1880_2017 = Frm_1880_2017 %>%filter(name == c("Donald", "Hilary", "Hillary", "Joe", "Barrack"))
+
+y = Name_1880_2017 %>% group_by(name) %>% summarise(n = sum(n))
+data =  y %>% mutate(frequency = c(84238/sum(n),847/sum(n),2681/sum(n),21876/sum(n)))
+Graph = ggplot(data, aes(x = name,y = frequency)) +
+geom_bar(stat = "identity")
+print(Graph + ggtitle("Frequency of the names -- Donald, Hilary, Hillary, Joe, Barrack"))
 
 
 ```
